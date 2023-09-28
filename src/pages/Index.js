@@ -1,13 +1,27 @@
 import React, { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import StripeConfig from "../component/StripeConfig";
+import { UserContext } from "../context/UserContext";
 
 function Index() {
   const { uri, setClient_secret } = useContext(AuthContext);
+  const { setUser, user } = useContext(UserContext);
   const [pay, setPay] = useState(false);
   const handlepay = () => {
     setPay(true);
   };
+
+  useEffect(() => {
+    fetch(`${uri}/user`, {
+      method: "POST",
+      credentials: "include",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        setUser(data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   useEffect(() => {
     fetch(`${uri}/secret`, {
@@ -23,13 +37,12 @@ function Index() {
     })
       .then((res) => res.json())
       .then((data) => {
-        console.log(data);
         setClient_secret(data.client_secret);
       });
   }, []);
   return (
     <div className="index">
-      <h1>hello from index js</h1>
+      <h1>hello welcome {user?.fullname}</h1>
       <div>
         {pay ? (
           <StripeConfig setPay={setPay} />
